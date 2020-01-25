@@ -19,6 +19,7 @@ rootProject.name = "vavrcc"
 include(
     "dependencies-bom",
     "release",
+    "integration-tests",
     "examples",
     "test"
 )
