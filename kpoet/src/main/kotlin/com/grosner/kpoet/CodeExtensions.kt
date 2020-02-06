@@ -97,5 +97,5 @@ inline fun CodeBlock.Builder.beginControl(
     .beginControlFlow(if (statement.isEmpty()) "" else " ($statement)", *args)
     .apply(function)!!
 
-inline fun CodeBlock.Builder.endControl(name: String, statement: String = "", vararg args: Any?) =
+fun CodeBlock.Builder.endControl(name: String, statement: String = "", vararg args: Any?) =
     endControlFlow("$name${if (statement.isEmpty()) "" else " ($statement)"}", *args)!!

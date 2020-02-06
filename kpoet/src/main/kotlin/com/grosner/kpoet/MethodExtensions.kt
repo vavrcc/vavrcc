@@ -43,6 +43,10 @@ inline fun MethodSpec.Builder.`if`(statement: String, vararg args: Any?,
                                    function: MethodMethod)
         = beginControl("if", statement = statement, args = *args, function = function)
 
+inline fun MethodSpec.Builder.`if`(statement: StringTemplateMethod,
+                                   function: MethodMethod)
+        = beginControl("if", statement = statement, function = function)
+
 inline fun MethodSpec.Builder.`do`(function: MethodMethod)
         = beginControl("do", function = function)
 
@@ -95,6 +99,8 @@ fun MethodSpec.Builder.`return`(statement: StringTemplateMethod) = addStatement(
 
 fun MethodSpec.Builder.`break`() = addStatement("break")!!
 
+val MethodSpec.Builder.`break`: Unit get() { addStatement("break") }
+
 fun MethodSpec.Builder.`continue`() = addStatement("continue")!!
 
 inline fun MethodSpec.Builder.case(statement: String, vararg args: Any, function: MethodMethod)
@@ -134,7 +140,7 @@ inline fun MethodSpec.Builder.beginControl(
     .beginControlFlow(" ($L)", codeBlock(statement))
     .apply(function)!!
 
-inline fun MethodSpec.Builder.endControl(name: String, statement: String = "", vararg args: Any?)
+fun MethodSpec.Builder.endControl(name: String, statement: String = "", vararg args: Any?)
         = endControlFlow("$name${if (statement.isEmpty()) "" else " ($statement)"}", *args)!!
 
 fun MethodSpec.Builder.javadoc(format: String, vararg args: Any?) = addJavadoc(format, *args)
