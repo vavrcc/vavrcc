@@ -17,6 +17,7 @@ val currentJavaCC by configurations.creating
 
 dependencies {
     currentJavaCC(project(":"))
+    testImplementation("org.apache.calcite:calcite-core:1.21.0")
 }
 
 val generateTestSources by tasks.registering {

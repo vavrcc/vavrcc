@@ -1,6 +1,5 @@
 package org.javacc.test.cobol
 
-import org.javacc.test.plsql.PlSqlFuzzyParser
 import org.junit.jupiter.api.Test
 import java.util.*
 import java.util.function.Consumer

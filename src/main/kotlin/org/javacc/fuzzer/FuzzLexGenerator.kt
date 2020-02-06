@@ -4,6 +4,7 @@ import com.grosner.kpoet.*
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.TypeName
 import org.javacc.parser.*
 import java.util.*
 import java.util.concurrent.Callable
@@ -42,7 +43,7 @@ class FuzzLexGenerator(
             is RStringLiteral -> addStatement("$N.append($S)", jjimage, r.image);
             is RCharacterList -> implement(r)
             is RSequence -> implement(r)
-            is RChoice -> implement(r)
+            is RChoice -> if (r.choices.size != 1) implement(r) else implement(r.choices.first() as RegularExpression)
             is RRepetitionRange -> implementLoop(r.regexpr, r.min, if (r.hasMax) r.max else 5.coerceAtLeast(r.min + 5))
             is RZeroOrMore -> implementLoop(r.regexpr, 0, 5)
             is RZeroOrOne -> implementLoop(r.regexpr, 0, 1)
@@ -150,6 +151,10 @@ class FuzzLexGenerator(
 
                 constructor(param(Random::class, "random")) {
                     addStatement("this.$N = random", jj_random)
+                }
+
+                public(TypeName.VOID, "SwitchTo", param(Int::class, "mode")) {
+                    comment("intentionally left blank")
                 }
 
                 val fillToken = private(config.tokenTypeName, fillTokenMethodName, param(config.tokenKindTypeName, "kind")) {

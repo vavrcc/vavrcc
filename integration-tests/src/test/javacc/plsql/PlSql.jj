@@ -320,7 +320,7 @@ void BindVariable():
 void AlterSession():
 {}
 {
-    "ALTER" ID("SESSION") "SET"
+    "ALTER"("SESSION") "SET"
     (<S_IDENTIFIER> "=" (<S_CHAR_LITERAL> | LOOKAHEAD({getToken(1).image.matches("(?i)TRUE|FALSE")}) <S_IDENTIFIER>))*
     ["COMMENT" "=" <S_CHAR_LITERAL>]
 }
@@ -334,7 +334,7 @@ void DeclarationSection():
 void Declarations():
 {}
 {
-    ( ( LOOKAHEAD({seeTYPE()}) ID("TYPE") <S_IDENTIFIER> "IS" TypeDefinition()
+    ( ( LOOKAHEAD({seeTYPE()}) ("TYPE") <S_IDENTIFIER> "IS" TypeDefinition()
       | CursorDeclaration()
       | PragmaDeclaration()
       | IdentifierDeclaration()
@@ -724,9 +724,9 @@ void FetchStatement():
 {
     "FETCH" (<S_IDENTIFIER>)
     ( "INTO" (<S_IDENTIFIER> | BindVariable()) ("," (<S_IDENTIFIER> | BindVariable()))*
-    | LOOKAHEAD(3) ID("BULK") ID("COLLECT") "INTO"
+    | LOOKAHEAD(3)("BULK")("COLLECT") "INTO"
         (<S_IDENTIFIER> | ":" <S_IDENTIFIER>) ("," (<S_IDENTIFIER> | ":" <S_IDENTIFIER>))*
-        [LOOKAHEAD(2) ID("LIMIT") PlSqlSimpleExpression()]
+        [LOOKAHEAD(2)("LIMIT") PlSqlSimpleExpression()]
     ) ";"
 }
 
@@ -734,7 +734,7 @@ void LockTableStatement():
 {}
 {
     "LOCK" "TABLE" TableName() ("," TableName())*
-    "IN" LockMode() ID("MODE") ["NOWAIT"] ";"
+    "IN" LockMode()("MODE") ["NOWAIT"] ";"
 }
 
 void OpenStatement():
@@ -755,8 +755,8 @@ void SetStatement():
 {
     "SET"
       ("TRANSACTION" (  "READ" ("ONLY" | "WRITE")
-                      | "ISOLATION" ID("LEVEL") ("SERIALIZABLE" | "READ" ID("COMMITTED"))
-                      | "USE" "ROLLBACK" ID("SEGMENT") ObjectReference())
+                      | "ISOLATION"("LEVEL") ("SERIALIZABLE" | "READ"("COMMITTED"))
+                      | "USE" "ROLLBACK"("SEGMENT") ObjectReference())
        | ("CONSTRAINT" | "CONSTRAINTS") ("ALL" | <S_IDENTIFIER> ("," <S_IDENTIFIER>)*)
          [LOOKAHEAD({getToken(1).image.matches("(?i)IMMEDIATE|DEFERRED")}) <S_IDENTIFIER>]
       )
@@ -822,9 +822,9 @@ void MergeStatement():
 {
     "MERGE" "INTO" TableReference()
     "USING" TableReference() "ON" "(" SQLExpression() ")"
-    "WHEN" ID("MATCHED") "THEN"
+    "WHEN"("MATCHED") "THEN"
         "UPDATE" "SET" MergeSetColumn() ("," MergeSetColumn())*
-    "WHEN" "NOT" ID("MATCHED") "THEN"
+    "WHEN" "NOT"("MATCHED") "THEN"
         "INSERT" "(" TableColumn() ("," TableColumn())* ")"
         "VALUES" "(" ("DEFAULT" | SQLExpressionList()) ")"
     ";"
@@ -930,7 +930,7 @@ void PlSqlSimpleExpression():
 void PlSqlMultiplicativeExpression():
 {}
 {
-    PlSqlExponentExpression() ( LOOKAHEAD(1) ("*" | "/" | ID("MOD")) PlSqlExponentExpression())*
+    PlSqlExponentExpression() ( LOOKAHEAD(1) ("*" | "/" | ("MOD")) PlSqlExponentExpression())*
 }
 
 void PlSqlExponentExpression():
@@ -959,7 +959,7 @@ void PlSqlPrimaryExpression():
   | BindVariable()
   | LOOKAHEAD(2) SQLCastExpression()
   | LOOKAHEAD(IntervalExpression()) IntervalExpression()
-  | LOOKAHEAD(2) (<S_IDENTIFIER> | "SQL") "%" ID("FOUND|NOTFOUND|ISOPEN|ROWCOUNT")
+  | LOOKAHEAD(2) (<S_IDENTIFIER> | "SQL") "%" ("FOUND"|"NOTFOUND"|"ISOPEN"|"ROWCOUNT")
   | LOOKAHEAD(FunctionReference() "(") FunctionCall()
   | ObjectReference() // Might be a call to a parameter-less function.
 }
@@ -1058,7 +1058,7 @@ void SelectStatement():
     SelectWithoutOrder()
     [ OrderByClause() ]
     [ ForUpdateClause() ]
-    [ "SKIP" ID("LOCKED") ]
+    [ "SKIP"("LOCKED") ]
 }
 
 void SelectWithoutOrder():
@@ -1133,12 +1133,12 @@ void WindowingClause():
 {
     ("ROWS" | "RANGE")
     ( "CURRENT" "ROW"
-    | SQLSimpleExpression() ID("PRECEDING") // perhaps UNBOUNDED PRECEDING
+    | SQLSimpleExpression()("PRECEDING") // perhaps UNBOUNDED PRECEDING
     | "BETWEEN" ( "CURRENT" "ROW"
-                | SQLSimpleExpression() ID("PRECEDING|FOLLOWING") // perhaps UNBOUNDED FOLLOWING
+                | SQLSimpleExpression()("PRECEDING|FOLLOWING") // perhaps UNBOUNDED FOLLOWING
                 )
           "AND" ( "CURRENT" "ROW"
-                | SQLSimpleExpression() ID("PRECEDING|FOLLOWING") // perhaps UNBOUNDED PRECEDING
+                | SQLSimpleExpression()("PRECEDING|FOLLOWING") // perhaps UNBOUNDED PRECEDING
                 )
     )
 }
@@ -1179,7 +1179,7 @@ void QueryTableExpression():
      | BindVariable() // not valid SQL, but appears in StatsPack SQL text
     )
     ["PX_GRANULE" "(" <S_NUMBER> "," <S_IDENTIFIER> "," <S_IDENTIFIER> ")"]
-    ["SAMPLE" [ID("BLOCK")] "(" <S_NUMBER> ")"]
+    ["SAMPLE" [("BLOCK")] "(" <S_NUMBER> ")"]
     [OracleObjectName()] // alias
     (Join())*
 }
@@ -1193,15 +1193,15 @@ void TableCollectionExpression():
 void Join():
 {}
 {
-    JoinType() ID("JOIN") TableReference() ("ON" SQLExpression() | "USING" "(" ColumnName() ("," ColumnName())* ")")
-//| ("CROSS" | "NATURAL" JoinType()) ID("JOIN") TableReference()
+    JoinType()("JOIN") TableReference() ("ON" SQLExpression() | "USING" "(" ColumnName() ("," ColumnName())* ")")
+//| ("CROSS" | "NATURAL" JoinType())("JOIN") TableReference()
 }
 
 void JoinType():
 {}
 {
     "INNER"
-  | ("LEFT" | "RIGHT" | "FULL") ID("OUTER")
+  | ("LEFT" | "RIGHT" | "FULL")("OUTER")
 }
 
 void ColumnName():
@@ -1249,7 +1249,7 @@ void OrderByExpression():
 {
     SQLSimpleExpression()
     ["ASC" | "DESC"]
-    ["NULLS" ID("LAST")]
+    ["NULLS"("LAST")]
 }
 
 void ForUpdateClause():
@@ -1405,10 +1405,10 @@ void SQLCastExpression():
 void IntervalExpression():
 {}
 {
-    ID("INTERVAL") SQLSimpleExpression()
+   ("INTERVAL") SQLSimpleExpression()
     ( LOOKAHEAD({"DAY".equalsIgnoreCase(getToken(1).image)})
-      ID("DAY") ["(" <S_NUMBER> ")"] "TO" ID("SECOND") ["(" <S_NUMBER> ")"]
-    | ID("YEAR") ["(" <S_NUMBER> ")"] "TO" ID("MONTH") ["(" <S_NUMBER> ")"]
+     ("DAY") ["(" <S_NUMBER> ")"] "TO"("SECOND") ["(" <S_NUMBER> ")"]
+    |("YEAR") ["(" <S_NUMBER> ")"] "TO"("MONTH") ["(" <S_NUMBER> ")"]
     )
 }
 
