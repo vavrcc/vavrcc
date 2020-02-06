@@ -54,6 +54,7 @@ public final class TypeSpec {
   public final List<AnnotationSpec> annotations;
   public final Set<Modifier> modifiers;
   public final List<TypeVariableName> typeVariables;
+  public final CodeBlock opaqueSuper;
   public final TypeName superclass;
   public final List<TypeName> superinterfaces;
   public final Map<String, TypeSpec> enumConstants;
@@ -72,6 +73,7 @@ public final class TypeSpec {
     this.anonymousTypeArguments = builder.anonymousTypeArguments;
     this.javadoc = builder.javadoc.build();
     this.body = builder.body.build();
+    this.opaqueSuper = builder.opaqueSuper.build();
     this.annotations = Util.immutableList(builder.annotations);
     this.modifiers = Util.immutableSet(builder.modifiers);
     this.typeVariables = Util.immutableList(builder.typeVariables);
@@ -107,6 +109,7 @@ public final class TypeSpec {
     this.anonymousTypeArguments = null;
     this.javadoc = type.javadoc;
     this.body = type.body;
+    this.opaqueSuper = type.opaqueSuper;
     this.annotations = Collections.emptyList();
     this.modifiers = Collections.emptySet();
     this.typeVariables = Collections.emptyList();
@@ -174,6 +177,7 @@ public final class TypeSpec {
     builder.annotations.addAll(annotations);
     builder.modifiers.addAll(modifiers);
     builder.typeVariables.addAll(typeVariables);
+    builder.opaqueSuper.add(opaqueSuper);
     builder.superclass = superclass;
     builder.superinterfaces.addAll(superinterfaces);
     builder.enumConstants.putAll(enumConstants);
@@ -227,35 +231,39 @@ public final class TypeSpec {
         }
         codeWriter.emitTypeVariables(typeVariables);
 
-        List<TypeName> extendsTypes;
-        List<TypeName> implementsTypes;
-        if (kind == Kind.INTERFACE) {
-          extendsTypes = superinterfaces;
-          implementsTypes = Collections.emptyList();
+        if (!opaqueSuper.isEmpty()) {
+          codeWriter.emit(opaqueSuper);
         } else {
-          extendsTypes = superclass.equals(ClassName.OBJECT)
-              ? Collections.emptyList()
-              : Collections.singletonList(superclass);
-          implementsTypes = superinterfaces;
-        }
-
-        if (!extendsTypes.isEmpty()) {
-          codeWriter.emit(" extends");
-          boolean firstType = true;
-          for (TypeName type : extendsTypes) {
-            if (!firstType) codeWriter.emit(",");
-            codeWriter.emit(" $T", type);
-            firstType = false;
+          List<TypeName> extendsTypes;
+          List<TypeName> implementsTypes;
+          if (kind == Kind.INTERFACE) {
+            extendsTypes = superinterfaces;
+            implementsTypes = Collections.emptyList();
+          } else {
+            extendsTypes = superclass.equals(ClassName.OBJECT)
+                ? Collections.emptyList()
+                : Collections.singletonList(superclass);
+            implementsTypes = superinterfaces;
           }
-        }
 
-        if (!implementsTypes.isEmpty()) {
-          codeWriter.emit(" implements");
-          boolean firstType = true;
-          for (TypeName type : implementsTypes) {
-            if (!firstType) codeWriter.emit(",");
-            codeWriter.emit(" $T", type);
-            firstType = false;
+          if (!extendsTypes.isEmpty()) {
+            codeWriter.emit(" extends");
+            boolean firstType = true;
+            for (TypeName type : extendsTypes) {
+              if (!firstType) codeWriter.emit(",");
+              codeWriter.emit(" $T", type);
+              firstType = false;
+            }
+          }
+
+          if (!implementsTypes.isEmpty()) {
+            codeWriter.emit(" implements");
+            boolean firstType = true;
+            for (TypeName type : implementsTypes) {
+              if (!firstType) codeWriter.emit(",");
+              codeWriter.emit(" $T", type);
+              firstType = false;
+            }
           }
         }
 
@@ -422,6 +430,7 @@ public final class TypeSpec {
     private final CodeBlock.Builder staticBlock = CodeBlock.builder();
     private final CodeBlock.Builder initializerBlock = CodeBlock.builder();
     private final CodeBlock.Builder body = CodeBlock.builder();
+    private final CodeBlock.Builder opaqueSuper = CodeBlock.builder();
 
     public final Map<String, TypeSpec> enumConstants = new LinkedHashMap<>();
     public final List<AnnotationSpec> annotations = new ArrayList<>();
@@ -489,6 +498,11 @@ public final class TypeSpec {
 
     public Builder addTypeVariable(TypeVariableName typeVariable) {
       typeVariables.add(typeVariable);
+      return this;
+    }
+
+    public Builder opaqueSuper(CodeBlock opaqueSuper) {
+      this.opaqueSuper.add(opaqueSuper);
       return this;
     }
 
