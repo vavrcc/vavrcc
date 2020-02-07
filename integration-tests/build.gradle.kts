@@ -61,10 +61,17 @@ file("src/test/javacc").listFiles { f: File -> f.isDirectory }?.forEach { dir ->
         logger.warn("No parser (*.jj) found in $dir")
         return@forEach
     }
+    val parserPackage = File(dir, "package.name.txt").let { f ->
+        if (f.exists()) {
+            f.readText().trim()
+        } else {
+            "org.javacc.test.${dir.name}"
+        }
+    }
     tasks.register<JavaCCTask>("testGen${dir.name.capitalize()}") {
         sourceSetName.set("test")
         javaCCClasspath.set(currentJavaCC)
         inputFile.set(parserFile)
-        packageName.set("org.javacc.test.${dir.name}")
+        packageName.set(parserPackage)
     }
 }

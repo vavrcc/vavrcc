@@ -9,7 +9,7 @@ options {
 
 PARSER_BEGIN(SqlParserImpl)
 
-package org.javacc.test.calcite;
+package org.apache.calcite.sql.parser.impl;
 
 
 import org.apache.calcite.avatica.util.Casing;

@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test
 import java.lang.AssertionError
 import java.util.*
 import java.util.function.Consumer
+import org.apache.calcite.sql.parser.impl.SqlParserImplFuzzyParser
+import org.apache.calcite.sql.parser.impl.Token
 
 class CalciteFuzzer {
     @Test

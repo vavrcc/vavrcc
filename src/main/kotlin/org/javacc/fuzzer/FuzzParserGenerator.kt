@@ -264,6 +264,7 @@ class FuzzParserGenerator(
                 tokenOutput = `private field`(Consumer::class.parameterized(config.tokenTypeName), "tokenOutput")
 
                 constructor(param(Random::class, "random")) {
+                    modifiers(public)
                     addStatement("this.$N = random", jj_random)
                     addStatement("this.$N = new $T(random)", token_source, lexer.typeName)
                 }
