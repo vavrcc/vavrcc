@@ -13,7 +13,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "javacc"
+rootProject.name = "vavrcc"
 
 include(
     "dependencies-bom",
@@ -26,7 +26,7 @@ for (p in rootProject.children) {
     if (p.children.isEmpty()) {
         // Rename leaf projects only
         // E.g. we don't expect to publish examples as a Maven module
-        p.name = "javacc-" + p.name
+        p.name = "vavrcc-" + p.name
     }
 }
 

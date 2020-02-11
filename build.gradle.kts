@@ -16,11 +16,11 @@ plugins {
 
 val String.v: String get() = rootProject.extra["$this.version"] as String
 
-val buildVersion = "javacc".v + releaseParams.snapshotSuffix
+val buildVersion = "vavrcc".v + releaseParams.snapshotSuffix
 
-description = "JavaCC is a parser/scanner generator for java"
+description = "VavrCC is a parser/scanner generator for java"
 
-println("Building JavaCC $buildVersion")
+println("Building VavrCC $buildVersion")
 
 val enableGradleMetadata by props()
 val skipJavadoc by props()
@@ -30,9 +30,9 @@ val slowTestLogThreshold by props(2000L)
 val enablePmd by props()
 
 releaseParams {
-    tlp.set("javacc")
-    organizationName.set("javacc")
-    componentName.set("javacc")
+    tlp.set("vavrcc")
+    organizationName.set("vavrcc")
+    componentName.set("vavrcc")
     prefixForProperties.set("gh")
     svnDistEnabled.set(false)
     sitePreviewEnabled.set(false)
@@ -50,7 +50,7 @@ releaseParams {
 }
 
 allprojects {
-    group = "net.java.dev.javacc"
+    group = "com.github.vavrcc"
     version = buildVersion
 
     repositories {
@@ -70,7 +70,7 @@ allprojects {
     if (javaUsed) {
         dependencies {
             val implementation by configurations
-            implementation(platform(project(":javacc-dependencies-bom")))
+            implementation(platform(project(":vavrcc-dependencies-bom")))
         }
     }
 
@@ -186,12 +186,12 @@ allprojects {
             withType<Jar>().configureEach {
                 manifest {
                     attributes["Bundle-License"] = "BSD-3-Clause"
-                    attributes["Implementation-Title"] = "JavaCC"
+                    attributes["Implementation-Title"] = "VavrCC"
                     attributes["Implementation-Version"] = project.version
-                    attributes["Specification-Vendor"] = "JavaCC"
+                    attributes["Specification-Vendor"] = "VavrCC"
                     attributes["Specification-Version"] = project.version
-                    attributes["Specification-Title"] = "JavaCC"
-                    attributes["Implementation-Vendor"] = "JavaCC"
+                    attributes["Specification-Title"] = "VavrCC"
+                    attributes["Implementation-Vendor"] = "VavrCC"
                     attributes["Implementation-Vendor-Id"] = "edu.berkeley.cs.jqf"
                 }
             }
@@ -203,14 +203,14 @@ allprojects {
                     docEncoding = "UTF-8"
                     charSet = "UTF-8"
                     encoding = "UTF-8"
-                    docTitle = "JavaCC ${project.name} API"
-                    windowTitle = "JavaCC ${project.name} API"
-                    header = "<b>JavaCC</b>"
+                    docTitle = "VavrCC ${project.name} API"
+                    windowTitle = "VavrCC ${project.name} API"
+                    header = "<b>VavrCC</b>"
                     addBooleanOption("Xdoclint:none", true)
                     addStringOption("source", "7")
                     // TODO: compute lastEditYear
                     bottom =
-                        "Copyright © 2006-???? Sun Microsystems, Inc, ????-2020 JavaCC development group"
+                        "Copyright © 2006-???? Sun Microsystems, Inc, ????-2020 VavrCC development group"
                     if (JavaVersion.current() >= JavaVersion.VERSION_1_9) {
                         addBooleanOption("html5", true)
                         links("https://docs.oracle.com/javase/9/docs/api/")
@@ -287,16 +287,16 @@ allprojects {
                 //    // Do not publish "root" project. Java plugin is applied here for DSL purposes only
                 //    return@configure
                 // }
-                if (project.path.startsWith(":javacc-examples") ||
-                    project.path.startsWith(":javacc-release") ||
-                    project.path.startsWith(":javacc-test")) {
+                if (project.path.startsWith(":vavrcc-examples") ||
+                    project.path.startsWith(":vavrcc-release") ||
+                    project.path.startsWith(":vavrcc-test")) {
                     // We don't publish examples to Maven Central
                     return@configure
                 }
                 publications {
-                    // Gradle plugin is not yet in JavaCC tree, but it would require
+                    // Gradle plugin is not yet in VavrCC tree, but it would require
                     // a slightly different publication
-                    if (project.path != ":javacc-plugin-gradle") {
+                    if (project.path != ":vavrcc-plugin-gradle") {
                         create<MavenPublication>(project.name) {
                             artifactId = project.name
                             version = rootProject.version.toString()
@@ -344,93 +344,41 @@ allprojects {
                             }
                             name.set(
                                 (project.findProperty("artifact.name") as? String)
-                                    ?: "JavaCC ${project.name.capitalize()}"
+                                    ?: "VavrCC ${project.name.capitalize()}"
                             )
                             description.set(
                                 project.description
-                                    ?: "JavaCC ${project.name.capitalize()}"
+                                    ?: "VavrCC ${project.name.capitalize()}"
                             )
                             inceptionYear.set("1996")
-                            url.set("https://github.com/javacc/javacc")
+                            url.set("https://github.com/vavrcc/vavrcc")
                             licenses {
                                 license {
                                     name.set("BSD-3-Clause")
-                                    url.set("https://raw.githubusercontent.com/javacc/javacc/master/LICENSE")
+                                    url.set("https://raw.githubusercontent.com/vavrcc/vavrcc/master/LICENSE")
                                     comments.set("BSD-3-Clause, Copyright (c) 2006, Sun Microsystems, Inc")
                                     distribution.set("repo")
                                 }
                             }
                             issueManagement {
                                 system.set("GitHub")
-                                url.set("https://github.com/javacc/javacc/issues")
+                                url.set("https://github.com/vavrcc/vavrcc/issues")
                             }
                             scm {
-                                connection.set("scm:git:https://github.com/javacc/javacc.git")
-                                developerConnection.set("scm:git:https://github.com/javacc/javacc.git")
-                                url.set("https://github.com/javacc/javacc")
+                                connection.set("scm:git:https://github.com/vavrcc/vavrcc.git")
+                                developerConnection.set("scm:git:https://github.com/vavrcc/vavrcc.git")
+                                url.set("https://github.com/vavrcc/vavrcc")
                                 tag.set("HEAD")
                             }
                             organization {
-                                name.set("javacc.org")
-                                url.set("https://javacc.github.io/javacc/")
-                            }
-                            mailingLists {
-                                mailingList {
-                                    name.set("Commits")
-                                    archive.set("https://javacc.org/mailing-list-archive/commits@javacc.java.net/")
-                                }
-                                mailingList {
-                                    name.set("Users")
-                                    archive.set("https://javacc.org/mailing-list-archive/users@javacc.java.net/")
-                                }
-                                mailingList {
-                                    name.set("Developers")
-                                    archive.set("https://javacc.org/mailing-list-archive/dev@javacc.java.net/")
-                                }
-                                mailingList {
-                                    name.set("Issues")
-                                    archive.set("https://javacc.dev.java.net/servlets/SummarizeList?listName=issues")
-                                }
+                                name.set("VavrCC")
+                                url.set("https://vavrcc.github.io/vavrcc/")
                             }
                             developers {
                                 developer {
-                                    name.set("Sreenivasa Viswanadha")
-                                    id.set("sreeni")
-                                    email.set("support@javacc.org")
-                                    roles.add("Owner")
-                                    timezone.set("0")
-                                    url.set("http://www.kampbell.net")
-                                    organization.set("javacc.org")
-                                    organizationUrl.set("https://javacc.org")
-                                }
-                                developer {
-                                    name.set("Chris Ainsley")
-                                    id.set("ainsleyc")
-                                    email.set("ainsleyc At dev.java.net")
-                                    roles.add("Developer")
-                                    timezone.set("0")
-                                    organization.set("java.net")
-                                    organizationUrl.set("http://www.java.net/")
-                                }
-                                developer {
-                                    name.set("Tim Pizey")
-                                    id.set("timp")
-                                    email.set("timp AT paneris.org")
-                                    roles.addAll("Maven maven", "Developer")
-                                    timezone.set("0")
-                                    url.set("http://paneris.org/~timp")
-                                    organization.set("Context Computing")
-                                    organizationUrl.set("http://www.context-computing.co.uk/")
-                                }
-                                developer {
-                                    name.set("Caroline Lemieux")
-                                    id.set("zosrothko")
-                                    email.set("zosrothko AT orange.fr")
-                                    roles.add("Developer")
-                                    timezone.set("0")
-                                    url.set("http://www.kampbell.net")
-                                    organization.set("Kampbell")
-                                    organizationUrl.set("https://github.com/Kampbell/")
+                                    name.set("Vladimir Sitnikov")
+                                    id.set("vlsi")
+                                    email.set("sitnikov.vladimir@gmail.com")
                                 }
                             }
                             contributors {
