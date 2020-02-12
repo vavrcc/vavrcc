@@ -1,0 +1,61 @@
+options {
+    BUILD_FUZZER=true;
+}
+
+PARSER_BEGIN(SimpleFuzzer)
+package org.javacc.test.simpleFuzzer;
+
+import java.util.List;
+import java.util.ArrayList;
+
+public class SimpleFuzzer {
+}
+
+PARSER_END(SimpleFuzzer)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  < Id: ("name" | "id" | "emps" | "depts" | ["A"-"Z"] (["0"-"9", "a"-"z"])+) >
+  | < Select: "SELECT" >
+  | < From: "FROM" >
+  | < Where: "WHERE" >
+}
+
+/** Top level production. */
+List<String> Select() :
+{
+    Token t;
+    Token v;
+    String c;
+    List<String> res = new ArrayList<String>();
+}
+{
+  <Select> { res.add(token.image); }
+    t=<Id> { res.add(t.image); } ("," { res.add(token.image); } t=<Id> { res.add(t.image); })*
+    <From> { res.add(token.image); } t=<Id> { res.add(t.image); }
+    [ <Where> { res.add(token.image); } c=Condition() { res.add(c); } ]
+    <EOF> { return res; }
+}
+
+String Condition() :
+{
+    Token t;
+    String u;
+    String v;
+    String op;
+}
+{
+  t=<Id> { u = t.image; } ("=" | "!=" | "<" | ">") { op = token.image; } t=<Id>
+  {
+    v = t.image;
+    return u + " " + op + " " + v;
+  }
+}

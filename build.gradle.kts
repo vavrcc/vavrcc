@@ -12,6 +12,7 @@ plugins {
     id("com.github.vlsi.gradle-extensions")
     id("com.github.vlsi.ide")
     id("com.github.vlsi.stage-vote-release")
+    kotlin("jvm") apply false
 }
 
 val String.v: String get() = rootProject.extra["$this.version"] as String
@@ -57,7 +58,9 @@ allprojects {
         mavenCentral()
     }
 
-    val javaUsed = file("src/main/java").isDirectory || file("src/test/java").isDirectory
+    val javaMainUsed = file("src/main/java").isDirectory
+    val javaTestUsed = file("src/test/java").isDirectory
+    val javaUsed = javaMainUsed || javaTestUsed
     if (javaUsed) {
         apply(plugin = "java-library")
         dependencies {
@@ -67,14 +70,30 @@ allprojects {
             compileOnly("com.google.code.findbugs:jsr305:3.0.2")
         }
     }
-    if (javaUsed) {
+
+    val kotlinMainUsed = file("src/main/kotlin").isDirectory
+    val kotlinTestUsed = file("src/test/kotlin").isDirectory
+    val kotlinUsed = kotlinMainUsed || kotlinTestUsed
+    if (kotlinUsed) {
+        apply(plugin = "java-library")
+        apply(plugin = "org.jetbrains.kotlin.jvm")
         dependencies {
-            val implementation by configurations
-            implementation(platform(project(":vavrcc-dependencies-bom")))
+            add(if (kotlinMainUsed) "implementation" else "testImplementation", kotlin("stdlib"))
         }
     }
 
-    val hasTests = file("src/test/java").isDirectory
+    if (javaUsed || kotlinUsed) {
+        dependencies {
+            val configurationName = if (javaMainUsed || kotlinMainUsed) {
+                "implementation"
+            } else {
+                "testImplementation"
+            }
+            configurationName(platform(project(":vavrcc-dependencies-bom")))
+        }
+    }
+
+    val hasTests = javaTestUsed || kotlinTestUsed
     if (hasTests) {
         // Add default tests dependencies
         dependencies {
@@ -131,10 +150,19 @@ allprojects {
         }
     }
 
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        if (!skipAutostyle) {
+            autostyle {
+                kotlin {}
+            }
+        }
+    }
+
     plugins.withType<JavaPlugin> {
         configure<JavaPluginExtension> {
-            sourceCompatibility = JavaVersion.VERSION_1_7
-            targetCompatibility = JavaVersion.VERSION_1_7
+            // JavaPoet requires 1.8
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
             withSourcesJar()
             if (!skipJavadoc) {
                 withJavadocJar()
@@ -207,7 +235,7 @@ allprojects {
                     windowTitle = "VavrCC ${project.name} API"
                     header = "<b>VavrCC</b>"
                     addBooleanOption("Xdoclint:none", true)
-                    addStringOption("source", "7")
+                    addStringOption("source", "8")
                     // TODO: compute lastEditYear
                     bottom =
                         "Copyright © 2006-???? Sun Microsystems, Inc, ????-2020 VavrCC development group"
@@ -215,7 +243,7 @@ allprojects {
                         addBooleanOption("html5", true)
                         links("https://docs.oracle.com/javase/9/docs/api/")
                     } else {
-                        links("https://docs.oracle.com/javase/7/docs/api/")
+                        links("https://docs.oracle.com/javase/8/docs/api/")
                     }
                 }
             }
@@ -411,6 +439,12 @@ allprojects {
 
 // Configuration of the root project itself
 // Note: it would be better to move parser to its own subfolder
+
+dependencies {
+    implementation(project(":javacc-kpoet"))
+    testImplementation("net.jqwik:jqwik-api:1.2.2")
+    testRuntimeOnly("net.jqwik:jqwik-engine:1.2.2")
+}
 
 val javaCC by tasks.registering(JavaCCTask::class) {
     description = "Generate the Java CC Main Parser"

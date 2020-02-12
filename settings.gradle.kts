@@ -10,6 +10,7 @@ pluginManagement {
         idv("com.github.vlsi.license-gather", "com.github.vlsi.vlsi-release-plugins")
         idv("com.github.vlsi.stage-vote-release", "com.github.vlsi.vlsi-release-plugins")
         idv("com.gradle.plugin-publish")
+        kotlin("jvm") version "kotlin".v()
     }
 }
 
@@ -18,7 +19,10 @@ rootProject.name = "vavrcc"
 include(
     "dependencies-bom",
     "release",
+    "integration-tests",
     "examples",
+    "javapoet",
+    "kpoet",
     "test"
 )
 
