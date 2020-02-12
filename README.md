@@ -1,5 +1,8 @@
 # <a name="top"></a>VavrCC
 
+[![Travis Build Status](https://travis-ci.org/vavrcc/vavrcc.svg?branch=master)](https://travis-ci.org/vavrcc/vavrcc)
+[![CI Status](https://github.com/vavrcc/vavrcc/workflows/CI/badge.svg)](https://github.com/vavrcc/vavrcc/actions)
+
 VavrCC is a parser generator for use with Java applications.
 It is a [fork](#fork) of JavaCC 7.0.6
 
